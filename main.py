@@ -26,12 +26,11 @@ filteredWords = ['UUID',
 def read_internal_logs(bot_log):
   with open(directory) as file:
     log_list = file.readlines()
-  
-  # if not in log, write to it. Else, ignore
-  if bot_log not in log_list:
-    write_to_logs(bot_log)    
+    bot_log_formatted = f'{bot_log}\n'
 
-    
+# If not in internal log, write to it. Else, do nothing.
+  if bot_log_formatted not in log_list:
+    write_to_logs(bot_log)    
 
       
 def write_to_logs(bot_log):
@@ -46,8 +45,8 @@ text = response.text
 split_text=text.split('\n')
 
 # filtering
-for idx in range(len(filteredWords)):
-  split_text = [item for item in split_text if filteredWords[idx] not in item]
+for ind in range(len(filteredWords)):
+  split_text = [item for item in split_text if filteredWords[ind] not in item]
 
 # split resulting text into two parts (timestamps and chat)
 for entry in split_text:
@@ -61,9 +60,12 @@ while i < len(split_text2)-1:
 
 
 while idx < len(timestamp):
+  
+  # initialise local variables
   char = ''
   j = 1
   title = ''
+  
   # check for game joins
   if 'join' in second_half[idx]:
     while second_half[idx][j] != ' ':
