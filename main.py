@@ -26,12 +26,11 @@ filteredWords = ['UUID',
 def read_internal_logs(bot_log):
   with open(directory) as file:
     log_list = file.readlines()
-  
-  # if not in log, write to it. Else, ignore
-  if bot_log not in log_list:
-    write_to_logs(bot_log)    
+    bot_log_formatted = f'{bot_log}\n'
 
-    
+# If not in internal log, write to it. Else, do nothing.
+  if bot_log_formatted not in log_list:
+    write_to_logs(bot_log)    
 
       
 def write_to_logs(bot_log):
@@ -46,8 +45,8 @@ text = response.text
 split_text=text.split('\n')
 
 # filtering
-for idx in range(len(filteredWords)):
-  split_text = [item for item in split_text if filteredWords[idx] not in item]
+for ind in range(len(filteredWords)):
+  split_text = [item for item in split_text if filteredWords[ind] not in item]
 
 # split resulting text into two parts (timestamps and chat)
 for entry in split_text:
@@ -61,31 +60,43 @@ while i < len(split_text2)-1:
 
 
 while idx < len(timestamp):
-  char = ''
+  
+  # initialise local variables
+  player = ''
   j = 1
   title = ''
+  chat = ''
   # check for game joins
   if 'join' in second_half[idx]:
     while second_half[idx][j] != ' ':
-      char += second_half[idx][j]
+      player += second_half[idx][j]
       j +=1
-    bot_log = f'{timestamp[idx]} : {char} is back online!'
+    bot_log = f'{timestamp[idx]} ::: {player} is back online!'
     read_internal_logs(bot_log)
     pop_flag = True
     
   # check for sleeping
   elif 'is now sleeping, 1 out of 1 needed' in second_half[idx]:
     while second_half[idx][j] != ' ':
-      char += second_half[idx][j]
+      player += second_half[idx][j]
       j +=1
-    bot_log = f'{timestamp[idx]} : {char} slept! Another sus-less night'
+    bot_log = f'{timestamp[idx]} ::: {player} slept! Another sus-less night'
     read_internal_logs(bot_log)
     pop_flag = True
+
+  #check for disconnections
+  elif 'lost connection: Disconnected' in second_half[idx]:
+    while second_half[idx][j] != ' ':
+      player += second_half[idx][j]
+      j +=1
+    bot_log = f'{timestamp[idx]} ::: {player} dc-ed! RIP Internet'
+    read_internal_logs(bot_log)
+    pop_flag = True  
 
   # check for advancements
   elif 'advancement' in second_half[idx]:
     while second_half[idx][j] != ' ':
-      char += second_half[idx][j]
+      player += second_half[idx][j]
       j +=1
     while second_half[idx][j] != '[':
       j +=1
@@ -93,10 +104,29 @@ while idx < len(timestamp):
       title += second_half[idx][j]
       j +=1
     title += second_half[idx][j]
-    bot_log = f'{timestamp[idx]} : {char} did a thing! Achieved {title}! POG'
+    bot_log = f'{timestamp[idx]} ::: {player} did a thing! Achieved {title}! POG'
     read_internal_logs(bot_log)
     pop_flag = True
+
+
+# 
+# add death messages
+    
+# chat receipts
+  elif 'Async Chat Thread' in first_half[idx]:
+    while second_half[idx][j] != '<':
+      j +=1
+    while second_half[idx][j] != '>':
+      player += second_half[idx][j]
+      j +=1
+    chat = second_half[idx][j+1:]
+    player = player[1:] 
+    bot_log = f'{timestamp[idx]} ::: {player} :"{chat} "'
+    read_internal_logs(bot_log)
+    pop_flag = True
+    
   if pop_flag is True:
+    first_half.pop(idx)
     second_half.pop(idx)
     timestamp.pop(idx)
   else:
