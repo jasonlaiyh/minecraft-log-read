@@ -62,32 +62,41 @@ while i < len(split_text2)-1:
 while idx < len(timestamp):
   
   # initialise local variables
-  char = ''
+  player = ''
   j = 1
   title = ''
-  
+  chat = ''
   # check for game joins
   if 'join' in second_half[idx]:
     while second_half[idx][j] != ' ':
-      char += second_half[idx][j]
+      player += second_half[idx][j]
       j +=1
-    bot_log = f'{timestamp[idx]} : {char} is back online!'
+    bot_log = f'{timestamp[idx]} ::: {player} is back online!'
     read_internal_logs(bot_log)
     pop_flag = True
     
   # check for sleeping
   elif 'is now sleeping, 1 out of 1 needed' in second_half[idx]:
     while second_half[idx][j] != ' ':
-      char += second_half[idx][j]
+      player += second_half[idx][j]
       j +=1
-    bot_log = f'{timestamp[idx]} : {char} slept! Another sus-less night'
+    bot_log = f'{timestamp[idx]} ::: {player} slept! Another sus-less night'
     read_internal_logs(bot_log)
     pop_flag = True
+
+  #check for disconnections
+  elif 'lost connection: Disconnected' in second_half[idx]:
+    while second_half[idx][j] != ' ':
+      player += second_half[idx][j]
+      j +=1
+    bot_log = f'{timestamp[idx]} ::: {player} dc-ed! RIP Internet'
+    read_internal_logs(bot_log)
+    pop_flag = True  
 
   # check for advancements
   elif 'advancement' in second_half[idx]:
     while second_half[idx][j] != ' ':
-      char += second_half[idx][j]
+      player += second_half[idx][j]
       j +=1
     while second_half[idx][j] != '[':
       j +=1
@@ -95,10 +104,29 @@ while idx < len(timestamp):
       title += second_half[idx][j]
       j +=1
     title += second_half[idx][j]
-    bot_log = f'{timestamp[idx]} : {char} did a thing! Achieved {title}! POG'
+    bot_log = f'{timestamp[idx]} ::: {player} did a thing! Achieved {title}! POG'
     read_internal_logs(bot_log)
     pop_flag = True
+
+
+# 
+# add death messages
+    
+# chat receipts
+  elif 'Async Chat Thread' in first_half[idx]:
+    while second_half[idx][j] != '<':
+      j +=1
+    while second_half[idx][j] != '>':
+      player += second_half[idx][j]
+      j +=1
+    chat = second_half[idx][j+1:]
+    player = player[1:] 
+    bot_log = f'{timestamp[idx]} ::: {player} :"{chat} "'
+    read_internal_logs(bot_log)
+    pop_flag = True
+    
   if pop_flag is True:
+    first_half.pop(idx)
     second_half.pop(idx)
     timestamp.pop(idx)
   else:
