@@ -43,10 +43,8 @@ def read_internal_logs(bot_log):
 # If not in internal log, write to it. Else, do nothing.
   if bot_log_formatted not in log_list:
     write_to_logs(bot_log)
-    # if write_flag is True:
-      
-    #   write_flag = False
-    
+  else:
+    write_flag = False
 
       
 def write_to_logs(bot_log):
@@ -55,17 +53,19 @@ def write_to_logs(bot_log):
     file.write(f'{bot_log}\n')
     write_flag = True
 
-
-
 @client.event
 async def on_message(message):
   if message.author == client.user:
     return
   elif message.content.startswith('!hi') :
     await message.channel.send('Hi friend!')
-  elif message.content.startswith('!checkLogs'):
+  elif message.content.startswith('!checklogs'):
+    
+    # declare global var
     global i
     global idx
+    global write_flag
+
     
     # request logs
     response = requests.get(url=SERVER)
@@ -102,9 +102,11 @@ async def on_message(message):
         while second_half[idx][j] != ' ':
           player += second_half[idx][j]
           j +=1
-        bot_log = f'{timestamp[idx]} ::: {player} is back online!'
-        await message.channel.send(bot_log)
+        bot_log = f'{timestamp[idx]}  ::: {player} is back online!'
         read_internal_logs(bot_log)
+        if write_flag is True:
+          await message.channel.send(bot_log)
+          write_flag = False
         pop_flag = True
         
       # check for sleeping
@@ -112,9 +114,11 @@ async def on_message(message):
         while second_half[idx][j] != ' ':
           player += second_half[idx][j]
           j +=1
-        bot_log = f'{timestamp[idx]} ::: {player} slept! Another sus-less night'
-        await message.channel.send(bot_log)
+        bot_log = f'{timestamp[idx]}  ::: {player} slept! Another sus-less night'
         read_internal_logs(bot_log)
+        if write_flag is True:
+          await message.channel.send(bot_log)
+          write_flag = False        
         pop_flag = True
     
       #check for disconnections
@@ -122,9 +126,11 @@ async def on_message(message):
         while second_half[idx][j] != ' ':
           player += second_half[idx][j]
           j +=1
-        bot_log = f'{timestamp[idx]} ::: {player} dc-ed! RIP Internet'
-        await message.channel.send(bot_log)
+        bot_log = f'{timestamp[idx]}  ::: {player} dc-ed! RIP Internet'
         read_internal_logs(bot_log)
+        if write_flag is True:
+          await message.channel.send(bot_log)
+          write_flag = False
         pop_flag = True  
     
       # check for advancements
@@ -138,9 +144,11 @@ async def on_message(message):
           title += second_half[idx][j]
           j +=1
         title += second_half[idx][j]
-        bot_log = f'{timestamp[idx]} ::: {player} did a thing! Achieved {title}! POG'
-        await message.channel.send(bot_log)
+        bot_log = f'{timestamp[idx]}  ::: {player} did a thing! Achieved {title}! POG'
         read_internal_logs(bot_log)
+        if write_flag is True:
+          await message.channel.send(bot_log)
+          write_flag = False        
         pop_flag = True
     
     
@@ -156,9 +164,11 @@ async def on_message(message):
           j +=1
         chat = second_half[idx][j+1:]
         player = player[1:] 
-        bot_log = f'{timestamp[idx]} ::: {player} :"{chat} "'
-        await message.channel.send(bot_log)
+        bot_log = f'{timestamp[idx]}  ::: {player} : {chat}'
         read_internal_logs(bot_log)
+        if write_flag is True:
+          await message.channel.send(bot_log)
+          write_flag = False        
         pop_flag = True
         
       if pop_flag is True:
